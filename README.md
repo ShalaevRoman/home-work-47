@@ -1,32 +1,66 @@
-# React + TypeScript + Vite
+# Оптимізація React-додатків через мемоізацію
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Домашнє завдання: демонстрація оптимізації React-додатку за допомогою
+`useMemo`, `useCallback` та `React.memo` у функціональних компонентах.
 
-Currently, two official plugins are available:
+## Опис проекту
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Додаток — список товарів (2000 шт.) із пошуком за назвою та окремим
+лічильником, не пов'язаним зі списком. Проект показує проблему зайвих
+перерахунків/ререндерів і те, як її вирішує мемоізація:
 
-## React Compiler
+- **`useMemo`** — важка функція фільтрації та сортування списку
+  (`src/utils/filterAndSortProducts.ts`) перераховується лише тоді,
+  коли змінюється пошуковий запит, а не на кожен рендер `App`.
+- **`useCallback`** — колбеки `onIncrement` та `onSelect`, що передаються
+  в дочірні компоненти, мають стабільне посилання між рендерами.
+- **`React.memo`** — компоненти `Counter` і `ProductItem` пропускають
+  ререндер, коли їхні пропси не змінились (наприклад, при зміні
+  лічильника, що не стосується списку товарів).
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Усі компоненти логують свій рендер у консоль розробника — це дозволяє
+наочно побачити ефект мемоізації: натискання кнопки лічильника більше не
+викликає перерахунок списку й ререндер усіх його елементів.
 
-## Expanding the Oxlint configuration
+## Структура проекту
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```
+src/
+├── types/              # Типи та інтерфейси
+│   ├── models.ts
+│   └── components.ts
+├── utils/
+│   ├── generateProducts.ts
+│   └── filterAndSortProducts.ts
+├── components/
+│   ├── Counter.tsx
+│   ├── SearchInput.tsx
+│   ├── ProductList.tsx
+│   └── ProductItem.tsx
+├── App.tsx
+└── main.tsx
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+## Встановлення та запуск
+
+```bash
+npm install
+npm run dev
+```
+
+Проект відкриється на `http://localhost:5173`.
+
+Збірка для продакшну:
+
+```bash
+npm run build
+```
+
+## Демо
+
+https://home-work-47-inky.vercel.app
+
+## Посилання на проект
+
+Демо: https://home-work-47-inky.vercel.app
+GitHub: https://github.com/ShalaevRoman/home-work-47
