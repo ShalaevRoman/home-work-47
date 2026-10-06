@@ -1,7 +1,12 @@
-import type { FC } from 'react'
+import { memo } from 'react'
 import type { CounterProps } from '../types/components'
 
-export const Counter: FC<CounterProps> = ({ count, onIncrement }) => {
+export const Counter = memo(function Counter({
+  count,
+  onIncrement,
+}: CounterProps) {
+  console.log('[Counter] render')
+
   return (
     <div className="counter-block">
       <p>
@@ -12,4 +17,4 @@ export const Counter: FC<CounterProps> = ({ count, onIncrement }) => {
       </button>
     </div>
   )
-}
+})

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import './App.css'
 import { Counter } from './components/Counter'
 import { SearchInput } from './components/SearchInput'
@@ -13,19 +13,26 @@ function App() {
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedId, setSelectedId] = useState<number | null>(null)
 
-  // Без useMemo: ця "важка" функція виконується на КОЖЕН рендер App,
-  // навіть коли змінюється лише count, який взагалі не впливає на список.
-  const visibleProducts = filterAndSortProducts(PRODUCTS, searchTerm)
+  // З useMemo: важка функція перераховується тільки коли змінюється
+  // searchTerm. Зміна count (через Counter) більше не викликає перерахунок,
+  // бо searchTerm у масиві залежностей не змінився.
+  const visibleProducts = useMemo(
+    () => filterAndSortProducts(PRODUCTS, searchTerm),
+    [searchTerm],
+  )
 
-  const handleIncrement = () => {
+  // З useCallback: функція має стабільне посилання між рендерами, тому
+  // React.memo на Counter бачить ті самі пропси і пропускає ререндер,
+  // коли змінюється щось, що не стосується лічильника (напр. searchTerm).
+  const handleIncrement = useCallback(() => {
     setCount((prev) => prev + 1)
-  }
+  }, [])
 
-  // Без useCallback: нова функція створюється на кожен рендер,
-  // через що React.memo (додамо пізніше) не зможе зберегти дочірні елементи.
-  const handleSelect = (id: number) => {
+  // Те саме для ProductItem: стабільний onSelect + React.memo означають,
+  // що при кліку на "+1" елементи списку більше не перерендеряться.
+  const handleSelect = useCallback((id: number) => {
     setSelectedId(id)
-  }
+  }, [])
 
   return (
     <div className="app">

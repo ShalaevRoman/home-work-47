@@ -1,11 +1,11 @@
-import type { FC } from 'react'
+import { memo } from 'react'
 import type { ProductItemProps } from '../types/components'
 
-export const ProductItem: FC<ProductItemProps> = ({
+export const ProductItem = memo(function ProductItem({
   product,
   isSelected,
   onSelect,
-}) => {
+}: ProductItemProps) {
   console.log(`[ProductItem] render: ${product.name}`)
 
   return (
@@ -18,4 +18,4 @@ export const ProductItem: FC<ProductItemProps> = ({
       <span className="product-price">{product.price} грн</span>
     </li>
   )
-}
+})
